@@ -47,6 +47,7 @@ type BlogPostAttributes = {
 
 const fetcher = async <T>(path: string, options?: RequestInit): Promise<T> => {
     const url = `${getStrapiURL(`/api${path}`)}`;
+    console.log('[strapi fetch PROD]', url);
     const response = await fetch(url, {
         headers: { 'Content-Type': 'application/json' },
         next: { revalidate: 30 },
@@ -54,10 +55,13 @@ const fetcher = async <T>(path: string, options?: RequestInit): Promise<T> => {
     });
 
     if (!response.ok) {
+        console.error('[strapi ERROR]', response.status, response.statusText, url);
         throw new Error(`Strapi request failed: ${response.statusText}`);
     }
 
-    return response.json();
+    const json = await response.json();
+    console.log('[strapi response PROD]', url, 'data count:', json.data?.length);
+    return json;
 };
 
 const unwrap = <T>(entity?: MaybeAttributes<T> | null): (T & { id: number }) | null => {

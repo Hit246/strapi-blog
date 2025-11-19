@@ -16,13 +16,21 @@ const Home = async ({ searchParams }: Props) => {
   const tagSlug = typeof resolvedParams.tag === 'string' ? resolvedParams.tag : undefined;
 
   const [posts, categories, tags] = await Promise.all([
-    getPosts({
-      categorySlug,
-      tagSlug,
-    }).catch(() => []),
-    getCategories().catch(() => []),
-    getTags().catch(() => []),
+    getPosts({ categorySlug, tagSlug }).catch((err) => {
+      console.error('[getPosts ERROR]', err);
+      return [];
+    }),
+    getCategories().catch((err) => {
+      console.error('[getCategories ERROR]', err);
+      return [];
+    }),
+    getTags().catch((err) => {
+      console.error('[getTags ERROR]', err);
+      return [];
+    }),
   ]);
+
+  console.log('[page.tsx] posts count:', posts.length);
 
   const featuredPost = posts.find((post) => post.featured) ?? posts[0];
   const remainingPosts = featuredPost ? posts.filter((post) => post.id !== featuredPost.id) : posts;
